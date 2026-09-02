@@ -1,0 +1,332 @@
+﻿<Window
+    x:Class="ObsMusicPlayer.Views.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:conv="clr-namespace:ObsMusicPlayer.Converters"
+    Title="Музыкальный Плеер"
+    Width="850"
+    Height="550"
+    Background="#1E1E2E"
+    WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <conv:PlaybackModeToSymbolConverter x:Key="ModeConverter" />
+
+        <!--  Общий стиль кнопок  -->
+        <Style x:Key="PlayerButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Padding" Value="8,4" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            Padding="{TemplateBinding Padding}"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#3A3A5C" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="CustomSlider" TargetType="Slider">
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Slider">
+                        <Grid x:Name="RootGrid" Background="Transparent">
+                            <Track x:Name="PART_Track" VerticalAlignment="Center">
+
+                                <!--  Синяя заполненная часть (слева от thumb)  -->
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="Slider.DecreaseLarge" Focusable="False">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate>
+                                                <Rectangle
+                                                    Height="10"
+                                                    Fill="#1A1AFF"
+                                                    RadiusX="5"
+                                                    RadiusY="5" />
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.DecreaseRepeatButton>
+
+                                <!--  Ползунок (по умолчанию скрыт)  -->
+                                <Track.Thumb>
+                                    <Thumb
+                                        x:Name="SliderThumb"
+                                        Focusable="False"
+                                        Opacity="0">
+                                        <Thumb.Template>
+                                            <ControlTemplate>
+                                                <Rectangle
+                                                    Width="14"
+                                                    Height="28"
+                                                    Fill="#8B8BFF"
+                                                    RadiusX="5"
+                                                    RadiusY="5" />
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+
+                                <!--  Серая незаполненная часть (справа от thumb)  -->
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="Slider.IncreaseLarge" Focusable="False">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate>
+                                                <Rectangle
+                                                    Height="10"
+                                                    Fill="#B0B0B0"
+                                                    RadiusX="5"
+                                                    RadiusY="5" />
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.IncreaseRepeatButton>
+
+                            </Track>
+                        </Grid>
+
+                        <ControlTemplate.Triggers>
+                            <!--  Показываем thumb при наведении на весь слайдер  -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="SliderThumb" Property="Opacity" Value="1" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!--  ═══ ВЕРХНЯЯ ПАНЕЛЬ: Плейлисты ═══  -->
+        <StackPanel
+            Grid.Row="0"
+            Margin="10,10,10,5"
+            Orientation="Horizontal">
+            <Button
+                Command="{Binding AddFolderCommand}"
+                Content="➕  Добавить папку"
+                FontSize="13"
+                Style="{StaticResource PlayerButton}" />
+            <Button
+                Margin="5,0,0,0"
+                Command="{Binding DeletePlaylistCommand}"
+                Content="🗑  Удалить"
+                FontSize="13"
+                Style="{StaticResource PlayerButton}" />
+        </StackPanel>
+
+        <!--  ═══ СРЕДНЯЯ ЧАСТЬ: Списки ═══  -->
+        <Grid Grid.Row="1" Margin="10,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220" />
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!--  Плейлисты  -->
+            <ListBox
+                Grid.Column="0"
+                Background="#2A2A3D"
+                BorderBrush="#3A3A5C"
+                DisplayMemberPath="Name"
+                FontSize="14"
+                Foreground="White"
+                ItemsSource="{Binding Playlists}"
+                SelectedItem="{Binding SelectedPlaylist}" />
+
+            <GridSplitter
+                Grid.Column="1"
+                Width="5"
+                HorizontalAlignment="Stretch"
+                Background="#3A3A5C" />
+
+            <!--  Треки  -->
+            <ListView
+                Grid.Column="2"
+                Background="#2A2A3D"
+                BorderBrush="#3A3A5C"
+                Foreground="White"
+                ItemsSource="{Binding SelectedPlaylist.Tracks}"
+                SelectedItem="{Binding SelectedTrack}">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn
+                            Width="300"
+                            DisplayMemberBinding="{Binding Title}"
+                            Header="Название" />
+                        <GridViewColumn
+                            Width="400"
+                            DisplayMemberBinding="{Binding FilePath}"
+                            Header="Путь" />
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </Grid>
+
+        <!--  ═══ НИЖНЯЯ ПАНЕЛЬ: Плеер ═══  -->
+        <Border
+            Grid.Row="2"
+            Margin="0,10,0,0"
+            Padding="15,12"
+            Background="#16161E">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!--  Название текущего трека  -->
+                <TextBlock
+                    Grid.Row="0"
+                    Margin="0,0,0,6"
+                    HorizontalAlignment="Center"
+                    FontSize="13"
+                    Foreground="#CDD6F4"
+                    Text="{Binding NowPlayingTitle}"
+                    TextTrimming="CharacterEllipsis" />
+
+                <!--  Прогресс-бар + время  -->
+                <Grid Grid.Row="1" Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="45" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="45" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock
+                        Grid.Column="0"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        FontSize="11"
+                        Foreground="#A6ADC8"
+                        Text="{Binding CurrentTimeText}" />
+
+                    <Slider
+                        Grid.Column="1"
+                        Margin="8,0"
+                        VerticalAlignment="Center"
+                        Maximum="{Binding TotalSeconds, FallbackValue=100}"
+                        Minimum="0"
+                        Style="{StaticResource CustomSlider}"
+                        Thumb.DragCompleted="SeekSlider_DragCompleted"
+                        Thumb.DragStarted="SeekSlider_DragStarted"
+                        Value="{Binding PositionSeconds, Mode=TwoWay}" />
+
+                    <TextBlock
+                        Grid.Column="2"
+                        VerticalAlignment="Center"
+                        FontSize="11"
+                        Foreground="#A6ADC8"
+                        Text="{Binding TotalTimeText}" />
+                </Grid>
+
+                <!--  Кнопки управления  -->
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!--  Левая часть: громкость  -->
+                    <StackPanel
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+                        <TextBlock
+                            Margin="0,0,5,0"
+                            VerticalAlignment="Center"
+                            FontSize="14"
+                            Foreground="White"
+                            Text="🔊" />
+                        <Slider
+                            Width="100"
+                            VerticalAlignment="Center"
+                            Maximum="1"
+                            Minimum="0"
+                            Style="{StaticResource CustomSlider}"
+                            Value="{Binding Volume, Mode=TwoWay}" />
+                    </StackPanel>
+
+                    <!--  Центральная часть: навигация + play  -->
+                    <StackPanel
+                        Grid.Column="1"
+                        HorizontalAlignment="Center"
+                        Orientation="Horizontal">
+                        <Button
+                            Command="{Binding PreviousTrackCommand}"
+                            Content="⏮"
+                            Style="{StaticResource PlayerButton}" />
+                        <Button
+                            Command="{Binding StopPlaybackCommand}"
+                            Content="⏹"
+                            FontSize="15"
+                            Style="{StaticResource PlayerButton}" />
+                        <Button
+                            Margin="5,0"
+                            Command="{Binding PlayPauseCommand}"
+                            FontSize="22"
+                            Style="{StaticResource PlayerButton}">
+                            <Button.Content>
+                                <TextBlock>
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="▶" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsPlaying}" Value="True">
+                                                    <Setter Property="Text" Value="⏸" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Button.Content>
+                        </Button>
+                        <Button
+                            Command="{Binding NextTrackCommand}"
+                            Content="⏭"
+                            Style="{StaticResource PlayerButton}" />
+                    </StackPanel>
+
+                    <!--  Правая часть: режим  -->
+                    <StackPanel
+                        Grid.Column="2"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+                        <Button
+                            Command="{Binding CyclePlaybackModeCommand}"
+                            Content="{Binding PlaybackMode, Converter={StaticResource ModeConverter}}"
+                            FontSize="16"
+                            Style="{StaticResource PlayerButton}"
+                            ToolTip="Режим воспроизведения" />
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

@@ -1,0 +1,58 @@
+﻿<Window
+    x:Class="ObsMusicPlayer.Views.NowPlayingOverlayWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Now Playing Overlay"
+    Width="500"
+    Height="150"
+    AllowsTransparency="True"
+    Background="Transparent"
+    Left="100"
+    ShowInTaskbar="False"
+    Top="600"
+    Topmost="True"
+    WindowStartupLocation="Manual"
+    WindowStyle="None">
+
+    <Border
+        Padding="30,20"
+        Background="#1A1A2E"
+        BorderBrush="#0F3460"
+        BorderThickness="2"
+        CornerRadius="15"
+        Opacity="0.9">
+        <StackPanel VerticalAlignment="Center">
+            <TextBlock
+                x:Name="TitleText"
+                MaxWidth="440"
+                HorizontalAlignment="Center"
+                FontSize="28"
+                FontWeight="Bold"
+                Foreground="#E94560"
+                Text="Nothing playing"
+                TextTrimming="CharacterEllipsis" />
+
+            <TextBlock
+                x:Name="ArtistText"
+                Margin="0,5,0,10"
+                HorizontalAlignment="Center"
+                FontSize="16"
+                Foreground="White"
+                Opacity="0.9"
+                Text="" />
+
+            <Border
+                Padding="15,5"
+                HorizontalAlignment="Center"
+                Background="#E94560"
+                CornerRadius="10">
+                <TextBlock
+                    x:Name="ProgressText"
+                    FontSize="12"
+                    FontWeight="SemiBold"
+                    Foreground="#0F3460"
+                    Text="" />
+            </Border>
+        </StackPanel>
+    </Border>
+</Window>
