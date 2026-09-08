@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using ObsMusicPlayer.Models;
 using ObsMusicPlayer.Services.Interfaces;
+using ObsMusicPlayer.Views;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows.Threading;
@@ -13,6 +14,7 @@ namespace ObsMusicPlayer.ViewModels
         private readonly IPlaylistService _playlistService;
         private readonly IAudioService _audioService;
         private readonly INowPlayingService _nowPlayingService;
+        private readonly IAutoStartService _autoStartService;
         private readonly DispatcherTimer _positionTimer;
         private readonly Random _random = new();
         private NowPlayingInfo? _currentInfo;
@@ -40,14 +42,22 @@ namespace ObsMusicPlayer.ViewModels
         [ObservableProperty] private string _nowPlayingTitle = "Ничего не воспроизводится";
         [ObservableProperty] private PlaybackMode _playbackMode = PlaybackMode.Normal;
 
+        // Настройки
+        [ObservableProperty] private bool _isAutoStartEnabled;
+
         public MainViewModel(
             IPlaylistService playlistService,
             IAudioService audioService,
-            INowPlayingService nowPlayingService)
+            INowPlayingService nowPlayingService,
+            IAutoStartService autoStartService)
         {
             _playlistService = playlistService;
             _audioService = audioService;
             _nowPlayingService = nowPlayingService;
+            _autoStartService = autoStartService;
+
+            // Загружаем текущее состояние автозапуска
+            IsAutoStartEnabled = _autoStartService.IsAutoStartEnabled;
 
             // Таймер обновления прогресса — 10 раз в секунду
             _positionTimer = new DispatcherTimer
@@ -58,6 +68,29 @@ namespace ObsMusicPlayer.ViewModels
             _positionTimer.Start();
 
             _ = LoadDataAsync();
+        }
+
+        // Реакция на изменение галочки автозапуска
+        partial void OnIsAutoStartEnabledChanged(bool value)
+        {
+            if (value)
+            {
+                _autoStartService.EnableAutoStart();
+            }
+            else
+            {
+                _autoStartService.DisableAutoStart();
+            }
+        }
+
+        [RelayCommand]
+        private void OpenSettings()
+        {
+            var settingsWindow = new SettingsWindow
+            {
+                DataContext = this // Передаём тот же ViewModel
+            };
+            settingsWindow.ShowDialog();
         }
 
         // ─── Загрузка данных ─────────────────────────────────
@@ -186,7 +219,7 @@ namespace ObsMusicPlayer.ViewModels
                     _currentInfo = new NowPlayingInfo
                     {
                         Title = value.Title,
-                        Artist = ExtractArtist(value),
+                        Artist = value.Artist,
                         Album = SelectedPlaylist?.Name ?? "",
                         Duration = TimeSpan.FromSeconds(_audioService.TotalSeconds),
                         Position = TimeSpan.Zero,
@@ -196,22 +229,6 @@ namespace ObsMusicPlayer.ViewModels
                     _nowPlayingService.UpdateNowPlaying(_currentInfo);
                 }, TaskScheduler.FromCurrentSynchronizationContext());
             }
-        }
-
-        private string ExtractArtist(Track track)
-        {
-            // Пытаемся извлечь артиста из пути или имени файла
-            try
-            {
-                var directory = Path.GetDirectoryName(track.FilePath);
-                if (!string.IsNullOrEmpty(directory))
-                {
-                    return Path.GetFileName(directory);
-                }
-            }
-            catch { }
-
-            return "Unknown Artist";
         }
 
         // ─── Реакция на изменение громкости ──────────────────

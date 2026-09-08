@@ -6,7 +6,7 @@
     Title="Музыкальный Плеер"
     Width="850"
     Height="550"
-    Background="#1E1E2E"
+    Background="#1c1c1c"
     WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
@@ -14,7 +14,7 @@
 
         <!--  Общий стиль кнопок  -->
         <Style x:Key="PlayerButton" TargetType="Button">
-            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Background" Value="#3e3e3e" />
             <Setter Property="Foreground" Value="White" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="FontSize" Value="18" />
@@ -31,7 +31,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#3A3A5C" />
+                                <Setter Property="Background" Value="#545454" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -46,65 +46,76 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Slider">
-                        <Grid x:Name="RootGrid" Background="Transparent">
-                            <Track x:Name="PART_Track" VerticalAlignment="Center">
+                        <Grid
+                            x:Name="RootGrid"
+                            Height="8"
+                            Background="Transparent">
+                            <Border
+                                Height="8"
+                                ClipToBounds="True"
+                                CornerRadius="4">
+                                <Track
+                                    x:Name="PART_Track"
+                                    Margin="0,0,4,0"
+                                    VerticalAlignment="Center">
 
-                                <!--  Синяя заполненная часть (слева от thumb)  -->
-                                <Track.DecreaseRepeatButton>
-                                    <RepeatButton Command="Slider.DecreaseLarge" Focusable="False">
-                                        <RepeatButton.Template>
-                                            <ControlTemplate>
-                                                <Rectangle
-                                                    Height="10"
-                                                    Fill="#1A1AFF"
-                                                    RadiusX="5"
-                                                    RadiusY="5" />
-                                            </ControlTemplate>
-                                        </RepeatButton.Template>
-                                    </RepeatButton>
-                                </Track.DecreaseRepeatButton>
+                                    <!--  Серая незаполненная часть (справа от thumb)  -->
+                                    <Track.IncreaseRepeatButton>
+                                        <RepeatButton Command="Slider.IncreaseLarge" Focusable="False">
+                                            <RepeatButton.Template>
+                                                <ControlTemplate>
+                                                    <Border
+                                                        Height="8"
+                                                        Margin="0,0,0,0"
+                                                        Background="#545454"
+                                                        CornerRadius="5" />
+                                                </ControlTemplate>
+                                            </RepeatButton.Template>
+                                        </RepeatButton>
+                                    </Track.IncreaseRepeatButton>
 
-                                <!--  Ползунок (по умолчанию скрыт)  -->
-                                <Track.Thumb>
-                                    <Thumb
-                                        x:Name="SliderThumb"
-                                        Focusable="False"
-                                        Opacity="0">
-                                        <Thumb.Template>
-                                            <ControlTemplate>
-                                                <Rectangle
-                                                    Width="14"
-                                                    Height="28"
-                                                    Fill="#8B8BFF"
-                                                    RadiusX="5"
-                                                    RadiusY="5" />
-                                            </ControlTemplate>
-                                        </Thumb.Template>
-                                    </Thumb>
-                                </Track.Thumb>
+                                    <!--  Синяя заполненная часть (слева от thumb)  -->
+                                    <Track.DecreaseRepeatButton>
+                                        <RepeatButton Command="Slider.DecreaseLarge" Focusable="False">
+                                            <RepeatButton.Template>
+                                                <ControlTemplate>
+                                                    <Border
+                                                        Height="8"
+                                                        Margin="0,0,-4,0"
+                                                        Background="#0372ef"
+                                                        CornerRadius="5" />
+                                                </ControlTemplate>
+                                            </RepeatButton.Template>
+                                        </RepeatButton>
+                                    </Track.DecreaseRepeatButton>
 
-                                <!--  Серая незаполненная часть (справа от thumb)  -->
-                                <Track.IncreaseRepeatButton>
-                                    <RepeatButton Command="Slider.IncreaseLarge" Focusable="False">
-                                        <RepeatButton.Template>
-                                            <ControlTemplate>
-                                                <Rectangle
-                                                    Height="10"
-                                                    Fill="#B0B0B0"
-                                                    RadiusX="5"
-                                                    RadiusY="5" />
-                                            </ControlTemplate>
-                                        </RepeatButton.Template>
-                                    </RepeatButton>
-                                </Track.IncreaseRepeatButton>
-
-                            </Track>
+                                    <!--  Ползунок (по умолчанию скрыт)  -->
+                                    <Track.Thumb>
+                                        <Thumb
+                                            x:Name="SliderThumb"
+                                            Margin="-4,0"
+                                            Focusable="False"
+                                            Opacity="0">
+                                            <Thumb.Template>
+                                                <ControlTemplate>
+                                                    <Border
+                                                        Width="8"
+                                                        Height="8"
+                                                        Background="Gray"
+                                                        CornerRadius="4" />
+                                                </ControlTemplate>
+                                            </Thumb.Template>
+                                        </Thumb>
+                                    </Track.Thumb>
+                                </Track>
+                            </Border>
                         </Grid>
 
                         <ControlTemplate.Triggers>
                             <!--  Показываем thumb при наведении на весь слайдер  -->
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="SliderThumb" Property="Opacity" Value="1" />
+                                <Setter TargetName="SliderThumb" Property="Cursor" Value="Hand" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -121,22 +132,40 @@
         </Grid.RowDefinitions>
 
         <!--  ═══ ВЕРХНЯЯ ПАНЕЛЬ: Плейлисты ═══  -->
-        <StackPanel
+        <Border
             Grid.Row="0"
-            Margin="10,10,10,5"
-            Orientation="Horizontal">
-            <Button
-                Command="{Binding AddFolderCommand}"
-                Content="➕  Добавить папку"
-                FontSize="13"
-                Style="{StaticResource PlayerButton}" />
-            <Button
-                Margin="5,0,0,0"
-                Command="{Binding DeletePlaylistCommand}"
-                Content="🗑  Удалить"
-                FontSize="13"
-                Style="{StaticResource PlayerButton}" />
-        </StackPanel>
+            Margin="10"
+            Padding="5"
+            Background="#2e2e2e"
+            CornerRadius="10">
+            <Grid>
+                <StackPanel Orientation="Horizontal">
+                    <Button
+                        Margin="5"
+                        Padding="12"
+                        Command="{Binding AddFolderCommand}"
+                        Content="➕ Добавить папку"
+                        FontSize="12"
+                        Style="{StaticResource PlayerButton}" />
+                    <Button
+                        Margin="5"
+                        Padding="12"
+                        Command="{Binding DeletePlaylistCommand}"
+                        Content="🗑 Удалить"
+                        FontSize="12"
+                        Style="{StaticResource PlayerButton}" />
+                </StackPanel>
+
+                <Button
+                    Margin="5"
+                    Padding="12"
+                    HorizontalAlignment="Right"
+                    Command="{Binding OpenSettingsCommand}"
+                    Content="Настройки"
+                    FontSize="12"
+                    Style="{StaticResource PlayerButton}" />
+            </Grid>
+        </Border>
 
         <!--  ═══ СРЕДНЯЯ ЧАСТЬ: Списки ═══  -->
         <Grid Grid.Row="1" Margin="10,0">
@@ -149,8 +178,8 @@
             <!--  Плейлисты  -->
             <ListBox
                 Grid.Column="0"
-                Background="#2A2A3D"
-                BorderBrush="#3A3A5C"
+                Background="#2e2e2e"
+                BorderBrush="#3e3e3e"
                 DisplayMemberPath="Name"
                 FontSize="14"
                 Foreground="White"
@@ -161,28 +190,33 @@
                 Grid.Column="1"
                 Width="5"
                 HorizontalAlignment="Stretch"
-                Background="#3A3A5C" />
+                Background="#3e3e3e" />
 
             <!--  Треки  -->
             <ListView
                 Grid.Column="2"
-                Background="#2A2A3D"
-                BorderBrush="#3A3A5C"
+                Background="#2e2e2e"
+                BorderBrush="#3e3e3e"
                 Foreground="White"
                 ItemsSource="{Binding SelectedPlaylist.Tracks}"
                 SelectedItem="{Binding SelectedTrack}">
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn
-                            Width="300"
-                            DisplayMemberBinding="{Binding Title}"
-                            Header="Название" />
-                        <GridViewColumn
-                            Width="400"
-                            DisplayMemberBinding="{Binding FilePath}"
-                            Header="Путь" />
-                    </GridView>
-                </ListView.View>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="5">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0" Text="{Binding Artist}" />
+                                <TextBlock Grid.Column="1" Text=" - " />
+                                <TextBlock Grid.Column="2" Text="{Binding Title}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
             </ListView>
         </Grid>
 
@@ -191,7 +225,7 @@
             Grid.Row="2"
             Margin="0,10,0,0"
             Padding="15,12"
-            Background="#16161E">
+            Background="#2e2e2e">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />

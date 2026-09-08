@@ -66,7 +66,7 @@ namespace ObsMusicPlayer.Services
                     playlist.Tracks.Add(new Track
                     {
                         FilePath = file,
-                        Title = Path.GetFileNameWithoutExtension(file)
+                        FullName = Path.GetFileNameWithoutExtension(file)
                     });
                 }
             });

@@ -24,6 +24,8 @@ namespace ObsMusicPlayer.Services
         {
             if (_isDisposed) return;
 
+            return;
+
             // Важно: используем Dispatcher приоритетом Background
             Application.Current.Dispatcher.BeginInvoke(
                 System.Windows.Threading.DispatcherPriority.Background,

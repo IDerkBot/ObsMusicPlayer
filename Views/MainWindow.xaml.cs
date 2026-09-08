@@ -12,6 +12,7 @@ namespace ObsMusicPlayer.Views
         public MainWindow()
         {
             InitializeComponent();
+            Closing += MainWindow_Closing;
         }
 
         private MainViewModel? VM => DataContext as MainViewModel;
@@ -24,6 +25,18 @@ namespace ObsMusicPlayer.Views
         private void SeekSlider_DragCompleted(object sender, DragCompletedEventArgs e)
         {
             VM?.EndSeek();
+        }
+
+        private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+        {
+            // Останавливаем воспроизведение
+            if (DataContext is MainViewModel vm)
+            {
+                vm.StopPlaybackCommand.Execute(null);
+            }
+
+            // Явно завершаем приложение
+            Application.Current.Shutdown();
         }
     }
 }

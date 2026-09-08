@@ -122,7 +122,15 @@ namespace ObsMusicPlayer.Services
                 try
                 {
                     var info = await _broadcastChannel.Reader.ReadAsync(_cts.Token);
-                    var json = JsonSerializer.Serialize(info);
+
+                    // Добавьте настройки сериализации
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                        WriteIndented = false
+                    };
+
+                    var json = JsonSerializer.Serialize(info, options);
                     var bytes = Encoding.UTF8.GetBytes(json);
 
                     var disconnected = new List<WebSocket>();
@@ -168,7 +176,12 @@ namespace ObsMusicPlayer.Services
 
         private async Task ServeJsonApi(HttpListenerContext context)
         {
-            var json = JsonSerializer.Serialize(_currentInfo);
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+
+            var json = JsonSerializer.Serialize(_currentInfo, options);
             var bytes = Encoding.UTF8.GetBytes(json);
             context.Response.ContentType = "application/json";
             context.Response.ContentLength64 = bytes.Length;
@@ -281,13 +294,10 @@ namespace ObsMusicPlayer.Services
 </head>
 <body>
     <div id='overlay' class='overlay'>
-        <div class='now-playing-label'>Now Playing</div>
+        <div class='now-playing-label'>Сейчас играет</div>
         <div class='title' id='title'>Nothing playing</div>
         <div class='artist' id='artist'></div>
         <div class='album' id='album'></div>
-        <div class='progress-container'>
-            <div class='progress-text' id='progress'>0:00 / 0:00</div>
-        </div>
     </div>
 
     <script>
@@ -297,14 +307,12 @@ namespace ObsMusicPlayer.Services
         const titleEl = document.getElementById('title');
         const artistEl = document.getElementById('artist');
         const albumEl = document.getElementById('album');
-        const progressEl = document.getElementById('progress');
         
         console.log('[NowPlaying] DOM elements:', {
             overlay: !!overlay,
             title: !!titleEl,
             artist: !!artistEl,
-            album: !!albumEl,
-            progress: !!progressEl
+            album: !!albumEl
         });
         
         let hideTimeout;
@@ -370,7 +378,7 @@ namespace ObsMusicPlayer.Services
             console.log('[NowPlaying] 🎨 Data received:', data);
             
             // Проверяем существование элементов
-            if (!titleEl || !artistEl || !albumEl || !progressEl) {
+            if (!titleEl || !artistEl || !albumEl) {
                 console.error('[NowPlaying] ❌ DOM elements not found!');
                 return;
             }
@@ -379,13 +387,11 @@ namespace ObsMusicPlayer.Services
             titleEl.textContent = data.title || 'Unknown Title';
             artistEl.textContent = data.artist || 'Unknown Artist';
             albumEl.textContent = data.album || '';
-            progressEl.textContent = data.progressText || '0:00 / 0:00';
             
             console.log('[NowPlaying] ✅ Text updated:');
             console.log('  - Title:', titleEl.textContent);
             console.log('  - Artist:', artistEl.textContent);
             console.log('  - Album:', albumEl.textContent);
-            console.log('  - Progress:', progressEl.textContent);
             
             // Показываем оверлей
             console.log('[NowPlaying] 📺 Adding visible class');
@@ -425,7 +431,6 @@ namespace ObsMusicPlayer.Services
                 title: 'Test Song',
                 artist: 'Test Artist',
                 album: 'Test Album',
-                progressText: '1:23 / 3:45'
             };
             updateOverlay(testData);
         };

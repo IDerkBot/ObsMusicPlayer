@@ -35,6 +35,7 @@ namespace ObsMusicPlayer
             services.AddSingleton<IPlaylistService, PlaylistService>();
             services.AddSingleton<IAudioService, AudioService>();
             services.AddSingleton<INowPlayingService, NowPlayingService>();
+            services.AddSingleton<IAutoStartService, AutoStartService>();
 
             services.AddSingleton<OverlayWindowManager>();
 
@@ -46,6 +47,12 @@ namespace ObsMusicPlayer
             {
                 var vm = provider.GetRequiredService<MainViewModel>();
                 return new MainWindow { DataContext = vm };
+            });
+
+            services.AddTransient<SettingsWindow>(provider =>
+            {
+                var vm = provider.GetRequiredService<MainViewModel>();
+                return new SettingsWindow { DataContext = vm };
             });
         }
 
